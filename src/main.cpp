@@ -46,18 +46,23 @@ void setup()
   dma_display.setBrightness8(3);
 }
 
+inline void draw_pixel(uint8_t x, uint8_t y, uint16_t color)
+{
+  dma_display.drawPixel((HEIGHT - 1) - y, (HEIGHT - 1) - x, color);
+}
+
 void loop()
 {
   dma_display.clearScreen();
-  for (int i = 0; i < HEIGHT; i++)
+  for (int y = 0; y < HEIGHT; y++)
   {
-    unsigned char *start = rgb565data_bin + (i * WIDTH * 2);
-    for (int j = 0; j < WIDTH; j++)
+    unsigned char *start = rgb565data_bin + (y * WIDTH * 2);
+    for (int x = 0; x < WIDTH; x++)
     {
-      unsigned char lower = start[j * 2];
-      unsigned char higher = start[(j * 2) + 1];
+      unsigned char lower = start[x * 2];
+      unsigned char higher = start[(x * 2) + 1];
       uint16_t color = (higher << 8) | lower;
-      dma_display.drawPixel(i, j, color);
+      draw_pixel(y, x, color);
     }
   }
   sleep(1000);
