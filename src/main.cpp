@@ -40,7 +40,7 @@ HUB75_I2S_CFG::i2s_pins pins = {
 HUB75_I2S_CFG mxconfig(WIDTH, HEIGHT, CHAIN, pins);
 MatrixPanel_I2S_DMA dma_display(mxconfig);
 
-#define FPS_PER_SECOND 15
+#define FPS_PER_SECOND 60
 #define FPS_DRAW_TIME (1000000 / FPS_PER_SECOND)
 
 void setup()
@@ -54,17 +54,15 @@ inline void draw_pixel(uint8_t x, uint8_t y, uint16_t color)
   dma_display.drawPixel((HEIGHT - 1) - y, (HEIGHT - 1) - x, color);
 }
 
-inline void draw_picture(const unsigned char *picture)
+inline void draw_picture(const uint16_t *picture)
 {
   unsigned long start = micros();
-  for (int y = 0; y < HEIGHT; y++)
+  for (uint16_t y = 0; y < HEIGHT; y++)
   {
-    const unsigned char *slice = picture + (y * WIDTH * 2);
-    for (int x = 0; x < WIDTH; x++)
+    const uint16_t *line = picture + (y * WIDTH);
+    for (uint16_t x = 0; x < WIDTH; x++)
     {
-      unsigned char lower = slice[x * 2];
-      unsigned char higher = slice[(x * 2) + 1];
-      uint16_t color = (higher << 8) | lower;
+      uint16_t color = line[x];
       draw_pixel(y, x, color);
     }
   }
@@ -74,7 +72,7 @@ inline void draw_picture(const unsigned char *picture)
 
 void loop()
 {
-  for (const unsigned char *data : datas)
+  for (const uint16_t *data : datas)
   {
     draw_picture(data);
   }
